@@ -12,6 +12,8 @@ from sklearn.model_selection import train_test_split
 
 
 
+
+st.set_page_config(page_title="biodigester",page_icon=":biogas:", layout="wide")
 #-----------style----------
 
 # def local_css(file_name):
@@ -24,7 +26,7 @@ st.markdown("""
 <style>
 .heading
          {
-    font-size:80px !important;
+    font-size:55px !important;
     color: #f2180c;
     font-weight:100;
 }
@@ -38,16 +40,27 @@ st.set_option('deprecation.showPyplotGlobalUse', False)
 
 #------------------------------------------------
 #heading
-st.write(
-"""<p class="heading"> Biogas Production.</p>
+col1, col2, col3 = st.columns(3)
+with col1:
+    st.image("bio1.png")
+with col2:
+    st.write("##")
+    st.write("##")
+    st.write("##")
+    st.write("##")
+    st.write(
+           """<p class="heading"> Biogas Production.</p>
 
-    """, unsafe_allow_html=True
-    )
+                """, unsafe_allow_html=True
+               )
+with col3:
+     st.image("bio2.png")
+
 st.write("---")
 
 
-st.header("Biogas Production")
 
+st.subheader("Dataset")
 df = pd.read_csv("biogasdf_ready.csv", parse_dates=['date'])
 st.write(df.head())
 
@@ -84,17 +97,22 @@ with col3:
     st.write("Key")
     st.write("0: There is no production")
     st.write("0.01: There was production")   
-   
-
+    st.write("A ratio of 6.2% : 93.8%")
+st.write("Using the target column, we can identify that its a binary CLASSIFICATION case because of the categorical values in the independent variable")
+st.write("##")
+st.write("Visualing different categories in the datset to understand more about the dataset")
 col1, col2, col3 = st.columns(3)
 with col1:
     sns.countplot(x = df['dm3_gas'], hue=df['dm3_gas'])
+    plt.title("biogas categories")
     st.pyplot()
 with col2:
-    sns.countplot(x=df['phase_test'], hue=df['phase_test'])      
+    sns.countplot(x=df['phase_test'], hue=df['phase_test'])
+    plt.title("Phase categories")      
     st.pyplot()
 with col3:
-    sns.countplot(x=df['bio_id'], hue = df['bio_id'])    
+    sns.countplot(x=df['bio_id'], hue = df['bio_id'])
+    plt.title("Bio production categories")    
     st.pyplot()
 # Peak  points
 prod0= df[df['dm3_gas']==0]
@@ -109,6 +127,7 @@ low_points0 = prod0.min()
 low_points1 = prod1.min()
 
 st.write("##")
+st.subheader("Peak and Low points of the features in Gas Production")
 st.write("Peak and Low points when there is NO production")
 #st.write("---")
 col1, col2 = st.columns(2)
@@ -272,8 +291,8 @@ with col1:
     st.pyplot()
 
 with col2:
-    st.write(" ")
-    st.write("Bio 1 canot produce as much as Bio2 across any month.")    
+    st.write("##")
+    st.write("Bio 1 cannot produce as much as Bio2 across any month.")    
     st.write("Noticably in the second month Bio1 production almost equals that of Bio2.")
 
 
@@ -301,7 +320,7 @@ with col2:
     plt.figure(figsize=(12,5))
     plt.plot(df_month.Month, df_month.dm3_gas)
     plt.xticks(np.arange(0, 13, step=1))
-    plt.title("Change in gas volume per hour")
+    plt.title("Change in gas volume per Month")
     plt.grid()
     st.pyplot()  
 st.write("Bio 1; Months with highest production are 4th month(April), 3rd Month(March) followed by 7th month (July). On the other hand the last two months of the year has the lowest production.")    
@@ -329,7 +348,7 @@ with col1:
     plt.figure(figsize=(8,5))
     sns.scatterplot(x='fluid_temp', y='ground_temp', hue='dm3_gas', data=df12)
     plt.grid()
-    plt.title("ground_temp vs fluid temp in relation to gas production")
+    plt.title("Ground_temp vs fluid temp in relation to gas production")
     st.pyplot()
 
 with col2:
@@ -348,12 +367,12 @@ with col2:
     #plt.scatter(x, y_pred, label="Predicted Values")
 
     # Plot the regression line
-    plt.plot(df12.fluid_temp, regression_line1, color='red', label="actual Linear Regression Line")
+    plt.plot(df12.fluid_temp, regression_line1, color='red', label="line of best fit")
     #plt.plot(x, regression_line2, color='green', label="predicted Linear Regression Line")
 
 
     # Title, labels and a legend
-    plt.title("ground_temp vs fluid temp in relation to gas production & line of best fit")
+    plt.title("Ground_temp vs fluid temp in relation to gas production & line of best fit")
     plt.xlabel("ground_temp")
     plt.ylabel("fluid_temp")
     #plt.xticks(np.arange(15,44,3))
@@ -368,20 +387,24 @@ with col2:
 
 
 model =pickle.load(open('rfc_model1.pkl', 'rb'))
-st.write("Kindly puts your parameters")
+st.write("Kindly enter your parameters")
 # Key-in the inputs
-gas_temp = st.number_input("Gas Temperatures: ")
-gas_umidity = st.number_input("gas humidity")
-air_umidity = st.number_input("air_humidity")
-ground_temp = st.number_input("ground_temp")
-fluid_temp = st.number_input("fluid_temp")
-
-inputs = pd.DataFrame({'gas_temp' : [gas_temp], 'gas_umidity' : [gas_umidity],  "air_umidity"  : [air_umidity], "ground_temp" : [ground_temp], "fluid_temp" : [fluid_temp] })
+with st.form('entry form1', clear_on_submit=True):
+    gas_temp = st.number_input("Gas Temperatures: ")
+    gas_umidity = st.number_input("gas humidity")
+    air_umidity = st.number_input("air_humidity")
+    ground_temp = st.number_input("ground_temp")
+    fluid_temp = st.number_input("fluid_temp")
+    submitted1 = st.form_submit_button("Submit")
+    if submitted1:
+        st.success("Data Saved")
+inputs = pd.DataFrame({'gas_temp' : [gas_temp], 'gas_umidity' : [gas_umidity],  "air_umidity"  : [air_umidity], "ground_temp" : [ground_temp], "fluid_temp" : [fluid_temp] })       
 def prediction(inputs):
-    scaler = StandardScaler()
-    X_pred_scaled = pd.DataFrame(scaler.fit_transform(inputs))
-    preds1 = model.predict(X_pred_scaled)
-    pred1 =round(preds1[0])
-    return pred1
-st.write(prediction(inputs))
-st.write(f"{(round(model.score(X_test_scaled, y_test),2))*100}%")
+        scaler = StandardScaler()
+        X_pred_scaled = pd.DataFrame(scaler.fit_transform(inputs))
+        preds1 = model.predict(X_pred_scaled)
+        pred1 =round(preds1[0])
+        return pred1        
+if st.checkbox("View Prediction"):
+    st.write(f"The production is: {prediction(inputs)}")
+    st.write(f"Confidence score: {(round(model.score(X_test_scaled, y_test),2))*100}%")
