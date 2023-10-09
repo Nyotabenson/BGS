@@ -348,7 +348,7 @@ with col1:
     plt.figure(figsize=(8,5))
     sns.scatterplot(x='fluid_temp', y='ground_temp', hue='dm3_gas', data=df12)
     plt.grid()
-    plt.title("Ground_temp vs fluid temp in relation to gas production")
+    plt.title("Gqround_temp vs fluid temp in relation to gas production")
     st.pyplot()
 
 with col2:
