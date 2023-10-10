@@ -154,17 +154,20 @@ modelled2_group = pd.read_csv("modelled2_group.csv")
 col1,col2,col3 = st.columns(3)
 with col2:
     st.header("Modelling")
-st.subheader("Training different algorithms to help predicting bio gas production")    
+st.subheader("Training different algorithms to help in predicting bio gas production")    
 st.write("---")
 col1,col2 = st.columns(2)
 with col1:
     st.subheader("Model 1")
-    st.write("A model trained wwith all the features")
+    st.write("A model trained with all the features")
     st.write("##")
     #Visualization
     fig, ax = plt.subplots(figsize=(12,7))
     ax.plot(modelled_group.Hour, modelled_group.preds, label="preds")
     ax.plot(modelled_group.Hour, modelled_group.dm3, label = "actual")
+    plt.title("Actual vs predicted gas production")
+    plt.xlabel("Hours")
+    plt.ylabel("Gas production (dm3)")
     ax.set_xticks(np.arange(0, 24, step=1))
     st.pyplot()
     st.text("Figure 3a.1")
@@ -215,13 +218,17 @@ with col1:
 
 with col2:
     st.subheader("Model 2")
-    st.write("A more automated model train to use two nparameters as input")
+    st.write("A more automated MODEL train to use two parameters as input")
+    st.write("##")
     #Visualization
     fig, ax = plt.subplots(figsize=(12,7))
 
     ax.plot(modelled2_group.Hour, modelled2_group.pred2, label="preds")
     ax.plot(modelled2_group.Hour, modelled2_group.dm3, label = "actual")
     ax.set_xticks(np.arange(0, 24, step=1))
+    plt.title("Actual vs predicted gas production")
+    plt.xlabel("Hours")
+    plt.ylabel("Gas production (dm3)")
     st.pyplot()
     st.text("Figure 3b.1")
     st.write("##")
