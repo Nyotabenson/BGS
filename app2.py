@@ -9,7 +9,7 @@ from sklearn.ensemble import RandomForestClassifier
 import pickle
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-
+from scipy.stats import f_oneway
 
 
 
@@ -141,6 +141,41 @@ st.write("Its noticable that there are extreme values in no production cases and
 st.write("Meaning: In very high temperatures and very low temperatures there is NO production at all")
 
 
+
+
+#----------------------ANOVA-----------------
+
+# Select the columns you want to analyze (e.g., fluid_temp, ground_temp, air_umidity)
+selected_columns = ['fluid_temp', 'ground_temp', 'air_umidity', "air_temp", "gas_umidity", "gas_temp", "bio_id", "phase_test"]
+st.subheader("ANalysis Of VAriation (ANOVA)")
+st.write("##")
+col1, col2 = st.columns(2)
+with col1:
+
+    # Perform ANOVA for each selected column
+    for col in selected_columns:
+        groups = []  # List to store the data for each group
+        categories = df['dm3_gas'].unique()  # Assuming we want to analyze based on 'dm3_gas' for now
+
+        for category in categories:
+            group_data = df[df['dm3_gas'] == category][col]
+            groups.append(group_data)
+
+        # Perform ANOVA
+        f_statistic, p_value = f_oneway(*groups)
+        
+        #Print the results for each column
+        st.write(f"ANOVA results for '{col}':")
+        st.write("F-statistic:", f_statistic)
+        st.write("p-value:", p_value)
+        st.write("\n")
+
+with col2:
+    st.write("""The F-statistic measures the variation between groups relative to the variation within groups. A larger F-statistic indicates a larger difference in means among groups.
+            """)
+    st.write("""The p-value is the probability of obtaining the observed F-statistic (or a more extreme value) if the null hypothesis is true. A small p-value 
+             (typically < 0.05) indicates that there is a significant difference between the groups.""")
+    
 #----------------------------MOdels-------------------------
 
 
