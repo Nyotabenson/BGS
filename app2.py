@@ -176,11 +176,55 @@ with col2:
     st.write("""The p-value is the probability of obtaining the observed F-statistic (or a more extreme value) if the null hypothesis is true. A small p-value 
              (typically < 0.05) indicates that there is a significant difference between the groups.""")
     
+    st.write("##")
+    st.write("Based on the output (On the right):")
+    st.write("> Most of the features significantly impact the dependent variable.")
+    st.write("> Exceptionally for 'air_temp' variable has a higher p_value which indicates less significance impact on the dependent variable")
+
+
+    st.write("##")
+    st.write("##")
+    st.subheader("ANOVA Results: F-statistic")
+    anova_hour = pd.read_csv("anova_hour.csv")
+
+    # Create a figure and axis
+    fig, ax = plt.subplots(figsize=(10,8))
+
+    # Define the width of each bar
+    bar_width = 0.35  # Adjust the bar width as needed
+
+    # Create x-values for the bars for the first set of data
+    x1 = range(len(anova_hour))
+
+    # Plot the first set of bars (F-statistic)
+    ax.barh(x1, anova_hour["F-statistic"], height=bar_width, label='F-statistic')
+
+    # Plot the second set of bars (p-values)
+    # ax.barh(x1, anova_hour["p-value"], height=bar_width, left=anova_hour["F-statistic"],
+    #         label='p-values', color='orange')
+
+    # Set the y-axis labels to be the columns
+    ax.set_yticks(x1)
+    ax.set_yticklabels(anova_hour.Column)
+
+    # Add a legend
+    ax.legend()
+
+    # Set labels and title
+    ax.set_ylabel('Variable')
+    ax.set_xlabel('Value')
+    ax.set_title('ANOVA Results: F-statistic')
+
+    # Show the plot
+    plt.tight_layout()
+    st.pyplot()
+
 #----------------------------MOdels-------------------------
 
 
 model2 =pickle.load(open('rfc_model2.pkl', 'rb'))
-model3 =pickle.load(open('rfc_model3.pkl', 'rb'))
+model3 =pickle.load(open('model_r.pkl', 'rb'))
+
 
 modelled_group = pd.read_csv("modelled_group.csv")
 modelled2_group = pd.read_csv("modelled2_group.csv")
@@ -189,13 +233,14 @@ modelled2_group = pd.read_csv("modelled2_group.csv")
 col1,col2,col3 = st.columns(3)
 with col2:
     st.header("Modelling")
-st.subheader("Training different algorithms to help in predicting bio gas production")    
+st.subheader("Training algorithms to help in predicting bio gas production")    
 st.write("---")
 col1,col2 = st.columns(2)
 with col1:
     st.subheader("Model 1")
-    st.write("A model trained with all the features")
+    st.subheader("A model trained with most features")
     st.write("##")
+    st.write("Actual values used to train the model vs predicted values")
     #Visualization
     fig, ax = plt.subplots(figsize=(12,7))
     ax.plot(modelled_group.Hour, modelled_group.preds, label="preds")
@@ -207,7 +252,12 @@ with col1:
     st.pyplot()
     st.text("Figure 3a.1")
     st.write("##")
-
+with col2:
+    st.write("##")
+    st.write("\n")
+    st.write("##")
+    st.write("##")
+    st.write("##")
     st.write("Plotting a line of best fit with the predicted values against the actual dm3 values")
     # fitting best fit line
     slope1, intercept1 = np.polyfit(modelled_group.dm3, modelled_group.preds, 1)
@@ -224,81 +274,104 @@ with col1:
     st.pyplot()
     st.text("Figure 3a.2")
 
-    # Input features
-    st.write("Kindly enter your parameters")
-    # Key-in the inputs
-    with st.form('entry form1', clear_on_submit=True):
-        bio_id = st.number_input("bio_id: ")
-        phase_test = st.number_input("Phase_test: ")
-        Month = st.number_input("Month: ")
-        Hour = st.number_input("Hour: ")
-        air_temp = st.number_input("Air Temperatures: ")
-        gas_temp = st.number_input("Gas Temperatures: ")
-        gas_umidity = st.number_input("gas humidity")
-        air_umidity = st.number_input("air_humidity")
-        ground_temp = st.number_input("ground_temp")
-        fluid_temp = st.number_input("fluid_temp")
-        submitted1 = st.form_submit_button("Submit")
-        if submitted1:
-            st.success("Data Saved")
-    inputs = pd.DataFrame({ "fluid_temp" : [fluid_temp], "ground_temp" : [ground_temp], "air_umidity":[air_umidity],  "air_temp"  : [air_temp],'gas_umidity' : [gas_umidity],  'gas_temp' : [gas_temp],    "bio_id": [bio_id], "phase_test": [phase_test] , "Month" : [Month], "Hour" : [Hour], })      
-    def prediction(inputs):
-            inputs_log = np.log(inputs)
-            pred1 = model2.predict(inputs_log)
-            pred1 =round(pred1[0],5)
-            return pred1        
-    if st.checkbox("View Prediction"):
-        st.write(f"The production is: {prediction(inputs)}dm3")
-        
+# Input features
+st.write("Kindly enter your parameters")
+# Key-in the inputs
+with st.form('entry form1', clear_on_submit=True):
+    # bio_id = st.number_input("bio_id: ")
+    # phase_test = st.number_input("Phase_test: ")
+    # Month = st.number_input("Month: ")
+    Hour = st.number_input("Hour: ")
+    air_temp = st.number_input("Air Temperatures: ")
+    gas_temp = st.number_input("Gas Temperatures: ")
+    gas_umidity = st.number_input("gas humidity")
+    air_umidity = st.number_input("air_humidity")
+    ground_temp = st.number_input("ground_temp")
+    fluid_temp = st.number_input("fluid_temp")
+    submitted1 = st.form_submit_button("Submit")
+    if submitted1:
+        st.success("Data Saved")
+inputs = pd.DataFrame({ "fluid_temp" : [fluid_temp], "ground_temp" : [ground_temp], "air_umidity":[air_umidity],  
+                       "air_temp"  : [air_temp],'gas_umidity' : [gas_umidity],  'gas_temp' : [gas_temp],   "Hour" : [Hour], })      
+def prediction(inputs):
+        inputs_log = np.log(inputs)
+        pred1 = model2.predict(inputs_log)
+        pred1 =round(pred1[0],5)
+        return pred1        
+if st.checkbox("View Prediction"):
+        if (inputs == 0).any().any():
+            st.error("Kindly make sure entries are not zeros")
+        else:
+            st.write(f"The production is: {prediction(inputs)}dm3")
 
-with col2:
-    st.subheader("Model 2")
-    st.write("A more automated MODEL train to use two parameters as input")
-    st.write("##")
-    #Visualization
-    fig, ax = plt.subplots(figsize=(12,7))
+st.write("---")
+st.subheader("Model 2")
 
-    ax.plot(modelled2_group.Hour, modelled2_group.pred2, label="preds")
-    ax.plot(modelled2_group.Hour, modelled2_group.dm3, label = "actual")
-    ax.set_xticks(np.arange(0, 24, step=1))
-    plt.title("Actual vs predicted gas production")
-    plt.xlabel("Hours")
-    plt.ylabel("Gas production (dm3)")
-    st.pyplot()
-    st.text("Figure 3b.1")
-    st.write("##")
-
-    st.write("Plotting a line of best fit with the predicted values against the actual dm3 values")
-    # fitting best fit line
-    slope1, intercept1 = np.polyfit(modelled2_group.dm3, modelled2_group.pred2, 1)
-    regression_line1 = slope1 * modelled2_group.dm3 + intercept1
+st.write("In a situation where you are interested in knowing the values of specific variables to use to achieve the desired dm3_gas") 
+st.write("Select the desired bio gas in dm3")       
+dm3 = st.slider("Select a value:", min_value=0, max_value=10, value=5)
+three_feat = pd.read_csv("three_feat.csv")
+y_3 = three_feat[['fluid_temp', 'air_umidity']]
+X_3  = three_feat[['dm3_gas']]
+# Split into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X_3, y_3, test_size=0.2, random_state=42)
+from sklearn.ensemble import RandomForestRegressor
+model_r = RandomForestRegressor()
+model_r.fit(X_train, y_train)
+predicted = model_r.predict([[dm3]])
+df = pd.DataFrame(predicted, columns=['Fluid_Temp', 'Air_humidity'])
+st.text("Predictions")
+st.write(df)
 
 
-    plt.scatter(x=modelled2_group.dm3, y = modelled2_group.pred2)
-    plt.plot(modelled2_group.dm3, regression_line1, color='red', label="actual Linear Regression Line")
-    plt.title("Predicted vs Actual values")
-    plt.xlabel("Actual dm3 values")
-    plt.ylabel("Predicted dm3 values")
-    plt.grid()
-    plt.legend()
-    st.pyplot()
-    st.text("Figure 3b.2")
-    # Input features
-    st.write("Kindly enter your parameters")
-    # Key-in the inputs
-    with st.form('entry form3', clear_on_submit=True):
+# with col2:
+#     st.subheader("Model 2")
+#     st.write("A more automated MODEL train to use two parameters as input")
+#     st.write("##")
+#     #Visualization
+#     fig, ax = plt.subplots(figsize=(12,7))
+
+#     ax.plot(modelled2_group.Hour, modelled2_group.pred2, label="preds")
+#     ax.plot(modelled2_group.Hour, modelled2_group.dm3, label = "actual")
+#     ax.set_xticks(np.arange(0, 24, step=1))
+#     plt.title("Actual vs predicted gas production")
+#     plt.xlabel("Hours")
+#     plt.ylabel("Gas production (dm3)")
+#     st.pyplot()
+#     st.text("Figure 3b.1")
+#     st.write("##")
+
+#     st.write("Plotting a line of best fit with the predicted values against the actual dm3 values")
+#     # fitting best fit line
+#     slope1, intercept1 = np.polyfit(modelled2_group.dm3, modelled2_group.pred2, 1)
+#     regression_line1 = slope1 * modelled2_group.dm3 + intercept1
+
+
+#     plt.scatter(x=modelled2_group.dm3, y = modelled2_group.pred2)
+#     plt.plot(modelled2_group.dm3, regression_line1, color='red', label="actual Linear Regression Line")
+#     plt.title("Predicted vs Actual values")
+#     plt.xlabel("Actual dm3 values")
+#     plt.ylabel("Predicted dm3 values")
+#     plt.grid()
+#     plt.legend()
+#     st.pyplot()
+#     st.text("Figure 3b.2")
+#     # Input features
+#     st.write("Kindly enter your parameters")
+#     # Key-in the inputs
+#     with st.form('entry form3', clear_on_submit=True):
        
-       fluid_temp = st.number_input("Fluid_temperature: ")
-       air_umidity = st.number_input("Air_umidity: ")
-       submitted1 = st.form_submit_button("Submit")
-       if submitted1:
-            st.success("Data Saved")
-    input2 = pd.DataFrame({"fluid_temp" : [fluid_temp], "air_umidity" : [air_umidity]})       
-    def prediction(input2):
-            input2_log = np.log(input2)
-            preds2 = model3.predict(input2_log)
-            preds2 =round(preds2[0],5)
-            return preds2        
-    if st.checkbox("View Predictions"):
-        st.write(f"The production is: {prediction(input2)}dm3")
+#        fluid_temp = st.number_input("Fluid_temperature: ")
+#        air_umidity = st.number_input("Air_umidity: ")
+#        submitted1 = st.form_submit_button("Submit")
+#        if submitted1:
+#             st.success("Data Saved")
+#     input2 = pd.DataFrame({"fluid_temp" : [fluid_temp], "air_umidity" : [air_umidity]})       
+#     def prediction(input2):
+#             input2_log = np.log(input2)
+#             preds2 = model3.predict(input2_log)
+#             preds2 =round(preds2[0],5)
+#             return preds2        
+#     if st.checkbox("View Predictions"):
+#         st.write(f"The production is: {prediction(input2)}dm3")
         
