@@ -204,6 +204,7 @@ with col2:
     #         label='p-values', color='orange')
 
     # Set the y-axis labels to be the columns
+    ax.set_facecolor('lightgray')
     ax.set_yticks(x1)
     ax.set_yticklabels(anova_hour.Column)
 
@@ -245,6 +246,7 @@ with col1:
     fig, ax = plt.subplots(figsize=(12,7))
     ax.plot(modelled_group.Hour, modelled_group.preds, label="preds")
     ax.plot(modelled_group.Hour, modelled_group.dm3, label = "actual")
+    ax.set_facecolor('lightblue')
     plt.title("Actual vs predicted gas production")
     plt.xlabel("Hours")
     plt.ylabel("Gas production (dm3)")
